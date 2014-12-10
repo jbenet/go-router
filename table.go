@@ -41,7 +41,7 @@ func (t *Table) Route(p Packet, ns []Node) Node {
 			best = e.NextHop
 		}
 	}
-	return nil
+	return best
 }
 
 func unitDistance(a, b Address) int {
