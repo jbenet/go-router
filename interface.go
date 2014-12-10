@@ -8,7 +8,11 @@ package router
 // can be seen as addresses too. We really leave it up to you. Our routing
 // is general, and forces you to pick an addressing scheme, and some logic to
 // discriminate addresses that you'll plug into Switches and Routers.
-type Address interface{}
+type Address interface {
+
+	// Distance returns a measure of distance between this Address and another.
+	Distance(a Address) int
+}
 
 // Packet is the unit of moving things in our network. Anything can be routed
 // in our network, as long as it has a Destination.
@@ -25,50 +29,12 @@ type Packet interface {
 	Payload() interface{}
 }
 
-// // Interface is an entry point to a Node in our network. It represents
-// // the way to communicate to another Node, but note that the interface has
-// // its own address. This is so Nodes can have multiple Addresses, and
-// // potentially be part of different networks altogether. This means that
-// // Interfaces could actually carry some logic to them. For example, they
-// // could modify Packets (e.g. serialization, Address mapping, etc).
-// type Interface interface {
-//
-// 	// Address returns the Address of this Interface. Note that this is the
-// 	// Address of the Device owning the Interface, at this Interface. Sometimes
-// 	// devices have the same Address in all their interfaces. Sometimes they
-// 	// have different addresses.
-// 	Address() Address
-//
-// 	// WritePacket puts a Packet into the Interface. Depending on the interface
-// 	// implementation, this may be a blocking call.
-// 	WritePacket(Packet) error
-//
-// 	// ReadPacket receives the next Packet from the Interface. Depending on the
-// 	// interface implementation, this may be a blocking call.
-// 	ReadPacket() (Packet, error)
-// }
-//
-// // A Connector is an object that connects two (or more) Interfaces together.
-// // It's like a physical wire between two devices, or wireless medium. Depending
-// // on the implementation, Connectors may be running goroutines and need to be
-// // stopped.
-// type Connector interface {
-//
-// 	// Interfaces returns all the Interfaces Connector connects.
-// 	Interfaces() []Interface
-//
-// 	// Disconnect stops this connector. This is usually a destructive call.
-// 	Disconnect()
-// }
-
 // Node is an object which has interfaces to connect to networks. This
 // is an "endpoint" object.
 type Node interface {
 
-	// // Interfaces returns all the existing interfaces of the Node.
-	// // Note that -- depending on the Node implementation -- Interfaces may
-	// // be added or removed at any time.
-	// Interfaces() []Interface
+	// Address returns the node's address.
+	Address() Address
 
 	// HandlePacket receives a packet sent by another node.
 	HandlePacket(Packet, Node)
@@ -84,13 +50,9 @@ type Switch interface {
 	Router() Router
 }
 
-// Router is an object that decides how a Packet should be Routed.
-//
-// Note that this is a break from traditional networking systems. Instead of
-// having the abstractions of FIB, RIB, Routing/Forwarding Tables, Routers,
-// and Switches, we only have the last two:
-// - Router -- the things that "route" (decide where things go)
-// - Switch -- connecting Nodes, "switch" Packets according to a Router.
+// Router is an object that decides how a Packet should be Routed. This should
+// be as close to a static table lookup as possible, meaning it would be best
+// to prepare a forwarding table in parallel, instead of blocking.
 //
 // Our Router captures the entire Control Plane, meaning that we can implement:
 // - Static Routing - forwarding table only
@@ -100,6 +62,12 @@ type Switch interface {
 // - URL Routers (like gorilla.Muxer)
 // - Protocol Muxers
 // entirely within different Router implementations.
+//
+// Note that this is a break from traditional networking systems. Instead of
+// having the abstractions of FIB, RIB, Routing/Forwarding Tables, Routers,
+// and Switches, we only have the last two:
+// - Router -- the things that "route" (decide where things go)
+// - Switch -- connecting Nodes, "switch" Packets according to a Router.
 type Router interface {
 
 	// Route decides how to route a Packet out of a list of Nodes.
@@ -107,3 +75,9 @@ type Router interface {
 	// Route may return nil, if no route is suitable at all (equivalent of drop).
 	Route(Packet, []Node) Node
 }
+
+// DistanceFunc returns a measure of distance between two Addresses.
+// Examples:
+// - masked longest prefix match (IP, CIDR)
+// - XOR distance (Kademlia)
+type DistanceFunc func(a, b Address) int
