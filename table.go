@@ -35,14 +35,14 @@ type Table struct {
 	Distance DistanceFunc
 }
 
-// AddTableEntry adds an (Address, NextHop) entry to the Table
-func (t *Table) AddTableEntry(addr Address, nextHop Node) {
+// AddEntry adds an (Address, NextHop) entry to the Table
+func (t *Table) AddEntry(addr Address, nextHop Node) {
 	t.Entries = append(t.Entries, TableEntry{addr, nextHop})
 }
 
 // AddNode calls AddTableEntry for the given Node
 func (t *Table) AddNode(n Node) {
-	t.AddTableEntry(n.Address(), n)
+	t.AddEntry(n.Address(), n)
 }
 
 // AddNodes calls AddTableEntry for the given Node
