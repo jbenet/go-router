@@ -7,12 +7,8 @@ package router
 // are things like IP Addresses, or email addresses. But filepaths, or URLs
 // can be seen as addresses too. We really leave it up to you. Our routing
 // is general, and forces you to pick an addressing scheme, and some logic to
-// discriminate addresses that you'll plug into Switches and Routers.
-type Address interface {
-
-	// Distance returns a measure of distance between this Address and another.
-	Distance(a Address) int
-}
+// discriminate addresses that you'll plug into Routers (Address DistanceFunc).
+type Address interface{}
 
 // Packet is the unit of moving things in our network. Anything can be routed
 // in our network, as long as it has a Destination.
@@ -70,10 +66,10 @@ type Switch interface {
 // - Switch -- connecting Nodes, "switch" Packets according to a Router.
 type Router interface {
 
-	// Route decides how to route a Packet out of a list of Nodes.
-	// It returns the Node chosen to send the Packet to.
+	// Route decides how to route a Packet.
+	// It returns the next hop Node chosen to send the Packet to.
 	// Route may return nil, if no route is suitable at all (equivalent of drop).
-	Route(Packet, []Node) Node
+	Route(Packet) Node
 }
 
 // DistanceFunc returns a measure of distance between two Addresses.

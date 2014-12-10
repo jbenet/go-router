@@ -4,24 +4,8 @@ import (
 	"testing"
 )
 
-type strAddr string
-
-func (s strAddr) Distance(o Address) int {
-	so, ok := o.(strAddr)
-	if !ok {
-		return -1
-	}
-
-	for i := range s {
-		if s[i] != so[i] {
-			return len(s) - i
-		}
-	}
-	return 0
-}
-
 type mockNode struct {
-	addr strAddr
+	addr string
 	pkts []Packet
 }
 
@@ -34,7 +18,7 @@ func (m *mockNode) HandlePacket(p Packet, n Node) {
 }
 
 type mockPacket struct {
-	a strAddr
+	a string
 }
 
 func (m *mockPacket) Destination() Address {
@@ -48,17 +32,17 @@ func (m *mockPacket) Payload() interface{} {
 func TestAddrs(t *testing.T) {
 
 	ta := func(a, b Address, expect int) {
-		actual := a.Distance(b)
+		actual := HammingDistance(a, b)
 		if actual != expect {
 			t.Error("address distance error:", a, b, expect, actual)
 		}
 	}
 
-	a := strAddr("abc")
-	b := strAddr("abc")
-	c := strAddr("abd")
-	d := strAddr("add")
-	e := strAddr("ddd")
+	a := "abc"
+	b := "abc"
+	c := "abd"
+	d := "add"
+	e := "ddd"
 
 	ta(a, a, 0)
 	ta(a, b, 0)
