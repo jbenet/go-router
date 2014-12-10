@@ -1,6 +1,8 @@
-// Package router implements a router that routes messages across a set
-// of interfaces. It is reminiscent of computer networks (internet), but
-// meant to be generalized.
+// Package router is a networking-inspired routing model. It's useful for
+// muxing and lots of other things. It enables you to construct your
+// abstractions as you would compose computer networks (endpoints, switches,
+// routing tables). These could represent processing workers, entire
+// subsystems, or even real computers ;).
 package router
 
 // Address is our way of knowing where we're headed. Traditionally, addresses
