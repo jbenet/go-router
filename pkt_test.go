@@ -13,8 +13,9 @@ func (m *mockNode) Address() Address {
 	return m.addr
 }
 
-func (m *mockNode) HandlePacket(p Packet, n Node) {
+func (m *mockNode) HandlePacket(p Packet, n Node) error {
 	m.pkts = append(m.pkts, p)
+	return nil
 }
 
 type mockPacket struct {

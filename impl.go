@@ -1,9 +1,16 @@
 package router
 
+import (
+	"errors"
+)
+
 type packet struct {
 	a Address
 	p interface{}
 }
+
+// ErrNoRoute signals when there is no Route to a destination
+var ErrNoRoute = errors.New("routing error: no route")
 
 // NewPacket constructs a trivial packet linking a destination Address to
 // an interface{} payload.
@@ -41,8 +48,9 @@ func (n *QueueNode) Address() Address {
 }
 
 // HandlePacket consumes the incomng packet and adds it to the queue.
-func (n *QueueNode) HandlePacket(p Packet, s Node) {
+func (n *QueueNode) HandlePacket(p Packet, s Node) error {
 	n.q <- p
+	return nil
 }
 
 type switchh struct {
@@ -64,9 +72,10 @@ func (s *switchh) Router() Router {
 	return s.router
 }
 
-func (s *switchh) HandlePacket(p Packet, n Node) {
+func (s *switchh) HandlePacket(p Packet, n Node) error {
 	next := s.router.Route(p)
 	if next != nil {
-		next.HandlePacket(p, s)
+		return next.HandlePacket(p, s)
 	}
+	return ErrNoRoute
 }

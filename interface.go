@@ -35,7 +35,7 @@ type Node interface {
 	Address() Address
 
 	// HandlePacket receives a packet sent by another node.
-	HandlePacket(Packet, Node)
+	HandlePacket(Packet, Node) error
 }
 
 // Switch is the basic forwarding device. It listens to all its interfaces (it
