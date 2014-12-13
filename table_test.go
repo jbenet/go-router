@@ -17,12 +17,12 @@ func TestTable(t *testing.T) {
 	pd := &mockPacket{"add"}
 	pe := &mockPacket{"ddd"}
 
-	table := &Table{
-		Entries: []TableEntry{
-			TableEntry{na.Address(), na},
-			TableEntry{nc.Address(), nc},
-			TableEntry{nd.Address(), nd},
-			TableEntry{ne.Address(), ne},
+	table := &SimpleTable{
+		entries: []TableEntry{
+			&tableEntry{na.Address(), na},
+			&tableEntry{nc.Address(), nc},
+			&tableEntry{nd.Address(), nd},
+			&tableEntry{ne.Address(), ne},
 		},
 	}
 
@@ -57,8 +57,8 @@ func TestTable2(t *testing.T) {
 	n2 := NewQueueNode("aba", make(chan Packet, 1))
 	n3 := NewQueueNode("abc", make(chan Packet, 1))
 
-	var tb Table
-	tb.Distance = HammingDistance
+	var tb SimpleTable
+	tb.distance = HammingDistance
 	tb.AddNodes(n1, n2)
 
 	p1 := NewPacket("aaa", "hello1")
